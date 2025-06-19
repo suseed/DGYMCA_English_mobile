@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Daegu YMCA English Practice Game</title>
+  <style>
+    :root {
+      --primary: #004f98; /* YMCA blue */
+      --accent: #fbd103;  /* YMCA yellow */
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background-color: #f4f6fa;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+    }
+    select {
+      font-size: 16px;
+      padding: 10px;
+      border-radius: 5px;
+      width: 220px;
+      background-color: #fff;
+      border: 2px solid #004f98;
+      color: #004f98;
+      cursor: pointer;
+    }
+    .container {
+      text-align: center;
+      background-color: white;
+      padding: 20px;
+      border-radius: 10px;
+      width: 100%;
+      max-width: 600px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    h2 {
+      color: #004f98;
+      margin-bottom: 20px;
+    }
+    .card {
+      background-color: #fbd103;
+      color: white;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 10px 0;
+      cursor: pointer;
+      font-size: 18px;
+      transition: transform 0.3s;
+    }
+    .card:hover {
+      transform: scale(1.05);
+    }
+    button {
+      background-color: #004f98;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-size: 16px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #003870;
+    }
+    .footer {
+      margin-top: 20px;
+    }
+    .sentence-info {
+      margin: 10px 0;
+      font-size: 16px;
+      color: #004f98;
+    }
+    .toggle-lang-btn {
+      margin-top: 10px;
+      background-color: #fbd103;
+      color: #004f98;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>Daegu YMCA English Practice Game</h2>
+    <select id="categorySelect">
+      <!-- Categories will be populated here -->
+    </select>
+
+    <div id="sentenceContainer">
+      <!-- Sentences will be displayed here -->
+    </div>
+
+    <div class="footer">
+      <button onclick="previousCard()">Previous</button>
+      <button onclick="nextCard()">Next</button>
+      <button onclick="resetGame()">Reset</button>
+      <button onclick="speakSentence()">🔊 Speak</button>
+    </div>
+  </div>
+
+  <script>
+    const categories = [
+      {
+        name: "안내 인사",
+        sentences: [
+          { en: "Good evening, distinguished guests, and welcome to Daegu YMCA.", ko: "저녁입니다, 존경하는 손님 여러분, 대구 YMCA에 오신 것을 환영합니다." },
+          { en: "We are delighted to have you join us for this special occasion.", ko: "이 특별한 행사에 여러분을 모시게 되어 기쁩니다." },
+          { en: "Thank you for honoring us with your presence tonight.", ko: "오늘 이 자리에 함께 해 주셔서 감사합니다." },
+          { en: "It is a privilege to gather with friends from near and far.", ko: "가깝고 먼 곳에서 온 친구들과 함께 모이게 되어 영광입니다." },
+          { en: "We are excited to share this moment with you.", ko: "이 순간을 여러분과 함께 나누게 되어 기쁩니다." },
+          { en: "Thank you for being part of this unforgettable evening.", ko: "이 잊을 수 없는 저녁의 일원이 되어 주셔서 감사합니다." },
+          { en: "We hope you enjoy the event as much as we enjoy having you here.", ko: "여러분이 여기 오셔서 즐기시는 만큼, 저희도 즐기고 있기를 바랍니다." },
+          { en: "This evening promises to be an unforgettable experience.", ko: "이번 저녁은 잊을 수 없는 경험이 될 것입니다." },
+          { en: "It’s a pleasure to have you with us tonight.", ko: "오늘 밤 여러분을 모시게 되어 매우 기쁩니다." },
+          { en: "We are truly honored to host such distinguished guests.", ko: "이렇게 존경하는 손님들을 모시게 되어 진심으로 영광입니다." },
+          { en: "We hope you have a wonderful time with us.", ko: "저희와 함께 즐거운 시간을 보내시길 바랍니다." },
+          { en: "We are grateful for your presence at this special event.", ko: "이 특별한 행사에 함께해 주셔서 감사드립니다." },
+          { en: "Please feel free to ask if you need anything.", ko: "필요한 것이 있으면 언제든지 말씀해 주세요." },
+          { en: "Let’s make the most of this special evening together.", ko: "이 특별한 저녁을 함께 즐겨 봅시다." },
+          { en: "Welcome to Daegu YMCA, we’re thrilled to have you here.", ko: "대구 YMCA에 오신 것을 환영합니다. 여러분을 맞이하게 되어 기쁩니다." }
+        ]
+      },
+      // Additional categories added here (YMCA Introduction, Small Talk, etc.)
+    ];
+
+    let currentCategoryIndex = 0;
+    let currentSentenceIndex = 0;
+
+    function populateCategories() {
+      const select = document.getElementById('categorySelect');
+      categories.forEach((category, index) => {
+        const option = document.createElement('option');
+        option.value = index;
+        option.innerText = category.name;
+        select.appendChild(option);
+      });
+    }
+
+    function displaySentences() {
+      const sentenceContainer = document.getElementById('sentenceContainer');
+      const currentCategory = categories[currentCategoryIndex];
+      sentenceContainer.innerHTML = ''; // Clear current sentences
+
+      const sentence = currentCategory.sentences[currentSentenceIndex];
+      const card = document.createElement('div');
+      card.classList.add('card');
+      card.innerText = sentence.en;
+      card.onclick = function () { toggleLanguage(card, sentence); };
+
+      const sentenceInfo = document.createElement('div');
+      sentenceInfo.classList.add('sentence-info');
+      sentenceInfo.innerText = `Sentence ${currentSentenceIndex + 1} of ${currentCategory.sentences.length}`;
+
+      sentenceContainer.appendChild(sentenceInfo);
+      sentenceContainer.appendChild(card);
+    }
+
+    function toggleLanguage(card, sentence) {
+      if (card.innerText === sentence.en) {
+        card.innerText = sentence.ko;
+      } else {
+        card.innerText = sentence.en;
+      }
+    }
+
+    function previousCard() {
+      if (currentSentenceIndex > 0) {
+        currentSentenceIndex--;
+        displaySentences();
+      }
+    }
+
+    function nextCard() {
+      const currentCategory = categories[currentCategoryIndex];
+      if (currentSentenceIndex < currentCategory.sentences.length - 1) {
+        currentSentenceIndex++;
+        displaySentences();
+      }
+    }
+
+    function resetGame() {
+      currentSentenceIndex = 0;
+      displaySentences();
+    }
+
+    document.getElementById('categorySelect').addEventListener('change', (e) => {
+      currentCategoryIndex = e.target.value;
+      currentSentenceIndex = 0;
+      displaySentences();
+    });
+
+    function speakSentence() {
+      const currentCategory = categories[currentCategoryIndex];
+      const sentence = currentCategory.sentences[currentSentenceIndex];
+      const utterance = new SpeechSynthesisUtterance(sentence.en);
+      utterance.lang = 'en-US';  // Keep natural-sounding voice
+      speechSynthesis.speak(utterance);
+    }
+
+    populateCategories();
+    displaySentences();
+  </script>
+
+</body>
+</html>
